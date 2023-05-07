@@ -1,0 +1,99 @@
+<!DOCTYPE html><html><head><meta charset='utf-8'><meta http-equiv='Access-Control-Allow-Origin' content='*'><meta http-equiv='Access-Control-Allow-Credentials' content='true'><script src='https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js'></script><script src='https://fustyles.github.io/webduino/SpBlocklyJS/GameElements_20190131/gameelements.js'></script><script src='https://fustyles.github.io/webduino/SpBlocklyJS/MQTT_20220324/mqtt.min.js'></script></head><body><script>const delay=(seconds)=>{return new Promise((resolve)=>{setTimeout(resolve,seconds*1000);});};const main=async()=>{
+var green, red, blue, volume;
+
+  function mqttBinarytobase64(input_array) {
+    const content = new Uint8Array(input_array);
+	    return btoa(String.fromCharCode.apply(null, content));
+  }
+
+
+
+body_set("backgroundColor",'#000000');
+green = 0;
+red = 0;
+blue = 0;
+volume = 0;
+const clientId = "mqtt_" + Math.random().toString(16).substr(2, 8);
+const options = {
+	username: '',
+	password: '',
+	keepalive: 60,
+	clientId: clientId,
+	protocolId: "MQTT",
+	protocolVersion: 4,
+	clean: true,
+	reconnectPeriod: 1000,
+	connectTimeout: 30 * 1000
+}
+
+var mqtt_client = mqtt.connect('wss://broker.mqttgo.io:8084/mqtt',options);
+mqtt_client.on("connect", ()=>{
+	console.log("connected");
+  mqtt_client.subscribe('0919182705/1228/red');
+  mqtt_client.subscribe('0919182705/1228/green');
+  mqtt_client.subscribe('0919182705/1228/blue');
+  mqtt_client.subscribe('0919182705/1228/volume');
+  mqtt_client.subscribe('0919182705/1228/radio');
+	mqtt_client.on("message", async function (topic, payload) {
+  if (topic=='0919182705/1228/volume') {
+    volume = (Number(payload));
+  }
+   })
+  }
+)
+
+span_create('1',0,100,14,'111',999);
+text_create('',280,50,80,20,'#000000','#ffff00',35,1,'IoT窗花網路電台',999,true);
+button_create('r',80,35,100,100,1,'#ff0000','red',20,999,true);
+button_create('g',80,35,100,150,1,'#33cc00','green',20,999,true);
+button_create('b',80,35,100,200,1,'#33ccff','blue',20,999,true);
+button_create('v',80,35,100,300,1,'#33ff33','音量',20,999,true);
+range_create('r',150,30,200,100,1,255,0,1,0,999,true);
+async function gamerange_r_onchange (event) {
+  red = (typeof red === 'number' ? red : 0) + (range_get('r',"value"));
+  mqtt_client.publish('0919182705/1228/red', String(red));
+};
+document.getElementById("gamerange_r").addEventListener("change", gamerange_r_onchange, true);
+range_create('g',150,30,200,150,1,255,0,1,0,999,true);
+async function gamerange_g_onchange (event) {
+  green = (typeof green === 'number' ? green : 0) + (range_get('g',"value"));
+  mqtt_client.publish('0919182705/1228/green', String(green));
+};
+document.getElementById("gamerange_g").addEventListener("change", gamerange_g_onchange, true);
+range_create('b',150,30,200,200,1,255,0,1,0,999,true);
+async function gamerange_b_onchange (event) {
+  blue = (typeof blue === 'number' ? blue : 0) + (range_get('b',"value"));
+  mqtt_client.publish('0919182705/1228/blue', String(blue));
+};
+document.getElementById("gamerange_b").addEventListener("change", gamerange_b_onchange, true);
+range_create('v',200,30,200,300,1,3,0,0.1,0,999,true);
+async function gamerange_v_onchange (event) {
+  mqtt_client.publish('0919182705/1228/volume', String((range_get('v',"value"))));
+};
+document.getElementById("gamerange_v").addEventListener("change", gamerange_v_onchange, true);
+button_create('ICRT',80,35,80,250,1,'#ffff00','ICRT',20,999,true);
+button_create('city',120,35,160,250,1,'#ffff00','城市廣播網',20,999,true);
+button_create('BBC',60,35,280,250,1,'#ffff00','BBC',20,999,true);
+button_create('piano',60,35,340,250,1,'#ffff00','piano',20,999,true);
+button_create('FM901',80,35,400,250,1,'#ffff00','FM901',20,999,true);
+async function gamebutton_ICRT_onclick (event) {
+  mqtt_client.publish('0919182705/1228/radio', String('1'));
+};
+document.getElementById("gamebutton_ICRT").addEventListener("click", gamebutton_ICRT_onclick, true);
+async function gamebutton_city_onclick (event) {
+  mqtt_client.publish('0919182705/1228/radio', String('2'));
+};
+document.getElementById("gamebutton_city").addEventListener("click", gamebutton_city_onclick, true);
+async function gamebutton_BBC_onclick (event) {
+  mqtt_client.publish('0919182705/1228/radio', String('3'));
+};
+document.getElementById("gamebutton_BBC").addEventListener("click", gamebutton_BBC_onclick, true);
+async function gamebutton_piano_onclick (event) {
+  mqtt_client.publish('0919182705/1228/radio', String('4'));
+};
+document.getElementById("gamebutton_piano").addEventListener("click", gamebutton_piano_onclick, true);
+async function gamebutton_FM901_onclick (event) {
+  mqtt_client.publish('0919182705/1228/radio', String('5'));
+};
+document.getElementById("gamebutton_FM901").addEventListener("click", gamebutton_FM901_onclick, true);
+};main();</script></body></html>
